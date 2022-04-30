@@ -28,7 +28,7 @@ jobs:
         with:
           author_name: github-actions
           author_email: actions@github.com
-          message: 'Updated GOG Games'
+          message: 'chore: updated gog games'
           add: '*.json'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
