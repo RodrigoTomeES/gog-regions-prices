@@ -1,0 +1,27 @@
+name: deploy
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Deploy to GH Pages
+      run: |
+        git config --global user.email "${{ secrets.GITHUB_EMAIL }}"
+        git config --global user.name "${{ secrets.GITHUB_NAME }}"
+        git remote set-url origin ${{ secrets.GITHUB_URL }}
+        npm run deploy
+        echo "Deployed successfully"
