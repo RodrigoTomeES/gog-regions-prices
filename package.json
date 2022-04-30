@@ -1,19 +1,20 @@
 {
-  "name": "gog-russian-prices",
-  "version": "1.0.0",
-  "description": "Compare GOG's prices between Russian and Spanish region (in dollars)",
-  "author": "David de los Santos Boix <ddlsb@hotmail.com>",
+  "name": "gog-regions-prices",
+  "version": "2.0.0",
+  "description": "Compare GOG's prices between all regions (in dollars)",
+  "author": "Rodrigo Tomé Nieto <hi@rodrigotome.es>",
   "scripts": {
     "watch:tailwind": "postcss public/tailwind.css -o public/index.css -w",
     "build:tailwind": "NODE_ENV=production postcss public/tailwind.css -o public/index.css",
     "dev": "run-p start:dev autobuild watch:tailwind",
     "build": "npm run build:tailwind && rollup -c",
     "start": "sirv public --single",
-    "start:dev": "sirv public --single --dev",
+    "start:dev": "sirv public --single --dev --port 8888",
     "autobuild": "rollup -c -w",
-    "extract": "node ./src/extract.js"
+    "extract": "node ./src/extract.js",
+    "deploy": "gh-pages -d build"
   },
-  "license": "ISC",
+  "license": "GNU AGPLv3",
   "dependencies": {
     "autoprefixer": "^10.0.2",
     "lodash": "^4.17.20",
@@ -25,6 +26,7 @@
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
     "cssnano": "^4.1.10",
+    "gh-pages": "^3.2.3",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.2.1",
     "postcss-cli": "^8.3.1",
