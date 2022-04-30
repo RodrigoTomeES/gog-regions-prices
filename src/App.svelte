@@ -17,7 +17,7 @@
   );
 
   onMount(async () => {
-    await fetch("/sales.json")
+    await fetch("./sales.json")
       .then((response) => response.json())
       .then((data) => {
         sales = data.sort((a, b) => a.title.localeCompare(b.title));
@@ -26,7 +26,7 @@
         currentPage = 1;
       });
 
-    await fetch("/lastUpdate.json")
+    await fetch("./lastUpdate.json")
       .then((response) => response.json())
       .then((data) => {
         const last = data.last;
@@ -42,7 +42,7 @@
       searchResult = sales;
     } else {
       if (games.length === 0) {
-        await fetch("/games.json")
+        await fetch("./games.json")
           .then((r) => r.json())
           .then((data) => {
             games = data.sort((a, b) => a.title.localeCompare(b.title));
