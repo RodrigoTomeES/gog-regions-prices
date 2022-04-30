@@ -14,12 +14,11 @@ async function updateGOGGames(maxPages = undefined) {
   const gamesJSON = fs.readFileSync(gamesDB, "utf-8")
 
   console.info(" Obtaining games prices...")
-  const gamesWithSpanishPrices = await getGames("ES", maxPages)
-  const gamesWithRussianPrices = await getGames("RU", maxPages)
+  const regions = ["ES", "RU", "UA", "AR", "TR", "CN", "NZ", "PL"]
+  const games = await Promise.all(regions.map(async (country) => await getGames(country, maxPages)))
 
   console.info(" Putting everything together...")
-  const newGames = joinPrices(gamesWithSpanishPrices, gamesWithRussianPrices)
-  const newSales = newGames.filter(x => x.sale)
+  const [newGames, newSales] = joinPrices(...games)
 
   if (gamesJSON.localeCompare(JSON.stringify(newGames)) != 0) {
     console.info(" SOME DIFFERENCES FOUND, writing to disk...")
@@ -32,35 +31,34 @@ async function updateGOGGames(maxPages = undefined) {
 }
 
 function getGames(country, maxPages) {
-  console.info(`  Running extraction process for ${country}`)
   return new Promise(async (resolve, _) => {
-    let page = 1, totalPages = maxPages, games = []
+    let page = 1, totalPages = maxPages, games = new Map()
 
     do {
-      if (page % 10 == 1) console.info(`   Page ${page}`)
+      if (page % 10 == 1) console.info(`  ${country} - Page ${page}`)
       const result = await getGOGData(country, page)
       totalPages = totalPages || result.totalPages
 
-      const products = result.products
+      result.products
         .filter(product => product.isGame)
-        .map(product => {
+        .forEach(product => {
           const mapped = {
             id: product.id,
             title: product.title,
             category: product.category,
             url: product.url,
             image: product.image,
-            price: product.price.baseAmount
+            price: product.price.baseAmount,
+            country: country
           }
 
           if (product.price.baseAmount != product.price.finalAmount) {
             mapped.sale = product.price.finalAmount
           }
 
-          return mapped;
+          games.set(product.id, mapped);
         })
 
-      games = games.concat(products)
       await sleep(GRACE_TIME)
     } while (page++ != totalPages)
 
@@ -86,6 +84,8 @@ function getGOGData(country, page) {
   })
 }
 
+const orderByID = (a, b) => a.id - b.id
+
 function options(country = "RU", page = 1) {
   return {
     url: `https://www.gog.com/games/ajax/filtered?sort=title&page=${page}`,
@@ -95,36 +95,48 @@ function options(country = "RU", page = 1) {
   }
 }
 
-function joinPrices(gamesWithSpanishPrices, gamesWithRussianPrices) {
-  return gamesWithSpanishPrices.map(game => {
-    const russianGame = gamesWithRussianPrices.find(x => x.id === game.id)
+function joinPrices(first, ...args) {
+  const newGames = []
+  const newSales = []
 
-    if (russianGame == undefined) {
-      return null
-    }
-
+  for (const [key, game] of first) {
     const info = {
       id: game.id,
       title: game.title,
       category: game.category,
       url: game.url,
       image: game.image,
-      price: {
-        es: game.price,
-        ru: russianGame.price
-      }
+      country: {},
+      price: {}
     }
+
+    info.price[game.country] = game.price
+    info.country[game.country] = game.country
 
     if (game.sale != undefined) {
-      info.sale = {
-        es: game.sale,
-        ru: russianGame.sale
-      }
+      info.sale = {}
+      info.sale[game.country] = game.sale
     }
 
-    return info
-  }).filter(x => x != null)
-    .sort((a, b) => a.id - b.id)
+    args.forEach(mapGamesOfCountry => {
+      if (mapGamesOfCountry.has(key)) {
+        const gameOtherCountry = mapGamesOfCountry.get(key)
+        info.price[gameOtherCountry.country] = gameOtherCountry.price
+        info.country[gameOtherCountry.country] = gameOtherCountry.country
+
+        if (gameOtherCountry.sale != undefined) {
+          info.sale[gameOtherCountry.country] = gameOtherCountry.sale
+        }
+      }
+    })
+
+    newGames.push(info)
+
+    if (game.sale) newSales.push(info)
+  }
+
+
+  return [newGames.sort(orderByID), newSales.sort(orderByID)]
 }
 
 function sleep(ms) {
