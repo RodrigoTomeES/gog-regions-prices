@@ -1,6 +1,4 @@
 <script>
-  const BASE_URL =
-    "https://raw.githubusercontent.com/Dionakra/gog-russian-prices/master/public";
   const PAGE_SIZE = 24;
 
   import { onMount } from "svelte";
@@ -11,7 +9,6 @@
   export let games = [];
   export let sales = [];
   export let lastUpdated = "";
-  export let showAlt = false;
   export let totalPages = -1;
   export let currentPage = -1;
   $: pageContent = searchResult.slice(
@@ -20,9 +17,7 @@
   );
 
   onMount(async () => {
-    showAlt = window.location.href.includes("dionakra");
-
-    await fetch(`${BASE_URL}/sales.json`)
+    await fetch("/sales.json")
       .then((response) => response.json())
       .then((data) => {
         sales = data.sort((a, b) => a.title.localeCompare(b.title));
@@ -31,7 +26,7 @@
         currentPage = 1;
       });
 
-    await fetch(`${BASE_URL}/lastUpdate.json`)
+    await fetch("/lastUpdate.json")
       .then((response) => response.json())
       .then((data) => {
         const last = data.last;
@@ -47,7 +42,7 @@
       searchResult = sales;
     } else {
       if (games.length === 0) {
-        await fetch(`${BASE_URL}/games.json`)
+        await fetch("/games.json")
           .then((r) => r.json())
           .then((data) => {
             games = data.sort((a, b) => a.title.localeCompare(b.title));
@@ -67,7 +62,7 @@
   };
 
   const moveOnKeyPress = (e) => {
-    if(e.target.id === "searchterm") return
+    if (e.target.id === "searchterm") return;
     if (e.keyCode === 37) previousPage();
     if (e.keyCode === 39) nextPage();
   };
@@ -90,9 +85,9 @@
   }
 </script>
 
-<svelte:window on:keydown={moveOnKeyPress}/>
+<svelte:window on:keydown={moveOnKeyPress} />
 
-<main class="container mx-auto px-3" >
+<main class="container mx-auto px-3">
   <div class="flex flex-wrap justify-center items-center">
     <div class="w-full flex justify-center">
       <!-- HEADER -->
@@ -100,16 +95,16 @@
         <!-- TITLE -->
         <div class="justify-center w-full">
           <h1 class="text-center text-3xl font-extrabold text-gray-900 ">
-            GOG Russian Prices
+            GOG Regions Prices
           </h1>
-          {#if showAlt}
-            <p class="text-sm text-gray-700 text-center">
-              We are moving to
-              <a
-                class="text-blue-700 underline"
-                href="https://gogputin.web.app">gogputin.web.app</a>
-            </p>
-          {/if}
+          <p class="text-sm text-gray-700 text-center">
+            If your country has a different price report it in
+            <a
+              class="text-blue-700 underline"
+              href="https://github.com/RodrigoTomeES/gog-regions-prices"
+              >Github</a
+            >
+          </p>
 
           {#if lastUpdated}
             <p class="text-sm text-gray-700 text-center pt-1">
@@ -131,8 +126,9 @@
               name="searchterm"
               type="text"
               required
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="Search for your game!" />
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Search for your game!"
+            />
           </div>
         </div>
 
@@ -140,7 +136,8 @@
           <button
             on:click={search}
             type="submit"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
             <span class="absolute left-0 inset-y-0 flex items-center pl-3" />
             Search!
           </button>
@@ -151,50 +148,52 @@
     </div>
 
     <!-- RESULTS -->
-    <div class="flex block w-full" id="games">
+    <div class="flex w-full" id="games">
       <div class="flex flex-wrap w-full" role="list">
         {#each pageContent as game}
           <div
             on:click={openLink(game.url)}
             class="cursor-pointer flex flex-col w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 px-1 pb-3"
-            role="listitem">
+            role="listitem"
+          >
             <div
-              class="rounded overflow-hidden hover:shadow-lg border-r border-b border-l border-gray-300 flex-1">
+              class="rounded overflow-hidden hover:shadow-lg border-r border-b border-l border-gray-300 flex-1"
+            >
               <img
                 class="w-full"
-                src={game.image + '_200.jpg'}
+                src={game.image + "_200.jpg"}
                 alt={game.title}
                 title={game.title}
-                loading="lazy" />
+                loading="lazy"
+              />
               <div class="px-2 py-2">
                 <div class="font-bold text-md">{game.title}</div>
                 <div class="text-sm text-gray-600">{game.category}</div>
               </div>
               <!-- PRICES -->
               <div class="pl-3 space-y-3 pb-3">
-                <div class="flex flex-inline h-5">
-                  <img class="h-full" src="/ru.svg" alt="Russian Flag" />
-                  {#if game.sale}
-                    <span
-                      class="font-medium text-blue-700 pl-2">{game.sale.ru}$</span>
-                    <span
-                      class="text-sm text-red-700 line-through pl-2">{game.price.ru}$</span>
-                  {:else}
-                    <span class="font-medium pl-2">{game.price.ru}$</span>
-                  {/if}
-                </div>
-
-                <div class="flex flex-inline h-5">
-                  <img class="h-full" src="/es.svg" alt="Spanish Flag" />
-                  {#if game.sale}
-                    <span
-                      class="font-medium text-blue-700 pl-2">{game.sale.es}$</span>
-                    <span
-                      class="text-red-700 line-through pl-2">{game.price.es}$</span>
-                  {:else}
-                    <span class="font-medium pl-2">{game.price.es}$</span>
-                  {/if}
-                </div>
+                {#each Object.values(game.country) as country}
+                  <div class="flex flex-inline h-5">
+                    <img
+                      class="h-full"
+                      src={`/flags/${country.toLowerCase()}.svg`}
+                      alt={`${country} Flag`}
+                    />
+                    {#if game.sale}
+                      <span class="font-medium text-blue-700 pl-2 self-center"
+                        >{game.sale[country]}$</span
+                      >
+                      <span
+                        class="text-sm text-red-700 line-through pl-2 self-center"
+                        >{game.price[country]}$</span
+                      >
+                    {:else}
+                      <span class="font-medium pl-2 self-center"
+                        >{game.price[country]}$</span
+                      >
+                    {/if}
+                  </div>
+                {/each}
               </div>
               <!-- END PRICES -->
             </div>
@@ -205,18 +204,21 @@
     <!-- END RESULTS-->
 
     <!-- PAGINATION -->
-    <div class="flex flex-inline block w-full mb-2">
+    <div class="flex flex-inline w-full mb-2">
       <div class="w-1/3 px-1 ">
         <button
           on:click={previousPage}
           disabled={currentPage <= 1}
-          class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          &lt;&lt; Previous</button>
+          class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          &lt;&lt; Previous</button
+        >
       </div>
 
       <div class="w-1/3 px-1 ">
         <div
-          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
           {currentPage}
           /
           {totalPages}
@@ -227,8 +229,10 @@
         <button
           on:click={nextPage}
           disabled={currentPage >= totalPages}
-          class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Next &gt;&gt;</button>
+          class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Next &gt;&gt;</button
+        >
       </div>
     </div>
 
