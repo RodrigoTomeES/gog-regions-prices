@@ -20,8 +20,8 @@ jobs:
 
     - name: Deploy to GH Pages
       run: |
-        git config --global user.email "${{ secrets.GITHUB_EMAIL }}"
-        git config --global user.name "${{ secrets.GITHUB_NAME }}"
-        git remote set-url origin ${{ secrets.GITHUB_URL }}
+        git config --global user.email "${{ secrets.GIT_EMAIL }}"
+        git config --global user.name "${{ secrets.GIT_NAME }}"
+        git remote set-url origin ${{ secrets.GIT_URL }}
         npm run deploy
         echo "Deployed successfully"
