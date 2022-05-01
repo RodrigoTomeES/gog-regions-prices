@@ -1,6 +1,5 @@
 name: Auto update DB
 on:
-  push:
   schedule:
     - cron: '0 5,13,21 * * *'
 

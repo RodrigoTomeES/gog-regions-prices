@@ -12,7 +12,7 @@
     "start:dev": "sirv public --single --dev --port 8888",
     "autobuild": "rollup -c -w",
     "extract": "node ./src/extract.js",
-    "deploy": "gh-pages -d build"
+    "deploy": "npm run build && gh-pages -d public"
   },
   "license": "GNU AGPLv3",
   "dependencies": {
