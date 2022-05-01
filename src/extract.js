@@ -10,8 +10,15 @@ updateGOGGames()
 
 async function updateGOGGames(maxPages = undefined) {
   console.info(`Retrieving information from GOG with Max Pages set to ${maxPages}`)
-  console.info(` Reading DB...`)
-  const gamesJSON = fs.readFileSync(gamesDB, "utf-8")
+  console.info(' Reading DB...')
+
+  let gamesJSON = null;
+
+  try {
+    gamesJSON = fs.readFileSync(gamesDB, "utf-8");
+  } catch (err) {
+    console.error('  DB doesn\'t exist, creating...')
+  }
 
   console.info(" Obtaining games prices...")
   const regions = ["ES", "RU", "UA", "AR", "TR", "CN", "NZ", "PL"]
@@ -20,7 +27,7 @@ async function updateGOGGames(maxPages = undefined) {
   console.info(" Putting everything together...")
   const [newGames, newSales] = joinPrices(...games)
 
-  if (gamesJSON.localeCompare(JSON.stringify(newGames)) != 0) {
+  if (gamesJSON === null || gamesJSON.localeCompare(JSON.stringify(newGames)) != 0) {
     console.info(" SOME DIFFERENCES FOUND, writing to disk...")
     fs.writeFileSync(gamesDB, JSON.stringify(newGames))
     fs.writeFileSync(salesDB, JSON.stringify(newSales))
