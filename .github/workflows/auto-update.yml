@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-        with:
-          ref: gh-pages
 
       - name: Set up Node.js
         uses: actions/setup-node@v1
@@ -24,6 +22,11 @@ jobs:
 
       - name: Run the update
         run: npm run extract
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v5
