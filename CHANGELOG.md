@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI/UX improvements.
 - Add compatibility with Node 18.
 
-## [2.0.0] - 2022-04-30
+## [2.0.0] - 2022-05-01
 
 ### Added
 
