@@ -1,4 +1,4 @@
-name: Auto update DB
+name: Auto update DB and Deploy
 on:
   push:
   schedule:
@@ -23,17 +23,9 @@ jobs:
       - name: Run the update
         run: npm run extract
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-        with:
-          ref: gh-pages
-
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v5
-        with:
-          author_name: github-actions
-          author_email: actions@github.com
-          message: 'chore: updated gog games'
-          add: '*.json'
+      - name: Deploy with gh-pages
+        run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
