@@ -176,7 +176,7 @@
                   <div class="flex flex-inline h-5">
                     <img
                       class="h-full"
-                      src={`/flags/${country.toLowerCase()}.svg`}
+                      src={`./flags/${country.toLowerCase()}.svg`}
                       alt={`${country} Flag`}
                     />
                     {#if game.sale}
