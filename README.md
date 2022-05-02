@@ -1,3 +1,5 @@
+<img src="public/favicon.svg" align="right" alt="GOG Regions Logo" width="150" height="150" />
+
 # GOG Russian Prices
 
 A WebApp where you can see the price of a given game on GOG's platform in all regions, so you can compare the difference in the price and choose where to buy the game.
@@ -25,6 +27,7 @@ npm run build
 
 - [GOG Russian Prices](https://github.com/Dionakra/gog-russian-prices) - Original Code
 - [Flags Icons](https://github.com/lipis/flag-icons) - Flags in SVG
+- [GOG SVG](https://commons.wikimedia.org/wiki/File:GOG.com_logo.svg) - GOG Logo
 
 ## Built with
 
