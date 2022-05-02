@@ -14,7 +14,11 @@
     "extract": "node ./src/extract.js",
     "deploy": "npm run build && gh-pages -d public"
   },
-  "license": "GNU AGPLv3",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RodrigoTomeES/gog-regions-prices.git"
+  },
   "dependencies": {},
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^2.3.0",
