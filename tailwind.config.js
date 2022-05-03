@@ -1,13 +1,7 @@
 module.exports = {
-  future: { },
-  purge: ["./src/**/*.svelte"],
+  content: ["./src/**/*.svelte"],
   theme: {
     extend: {},
-  },
-  variants: {
-    extend: {
-      opacity: ['disabled'],
-    }
   },
   plugins: [],
 }
