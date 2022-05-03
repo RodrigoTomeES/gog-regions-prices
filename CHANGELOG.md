@@ -8,10 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Code improvements and cleanup.
-- Update dependencies, like Tailwind to v3 and Stelve to v3.
 - Remove unnecessary dependencies.
 - UI/UX improvements.
-- Add compatibility with Node 18.
 
 ## [2.0.0] - 2022-05-01
 
