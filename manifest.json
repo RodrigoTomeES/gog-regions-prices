@@ -9,8 +9,8 @@
   "background_color": "#4f46e5",
   "icons": [
     {
-      "src": "favicon.svg",
-      "sizes": "72x72 96x96 128x128 256x256"
+      "src": "/favicon.svg",
+      "sizes": "72x72 96x96 128x128 192x192 256x256 512x512"
     }
   ]
 }
