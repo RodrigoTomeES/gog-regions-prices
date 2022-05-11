@@ -1,0 +1,16 @@
+{
+  "name": "GOG Regions Prices",
+  "short_name": "GOG Prices",
+  "description": "A WebApp where you can see the price of a given game on GOG's platform in all regions",
+  "lang": "en-US",
+  "display": "standalone",
+  "start_url": "/index.html",
+  "theme_color": "#4f46e5",
+  "background_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "72x72 96x96 128x128 256x256"
+    }
+  ]
+}
