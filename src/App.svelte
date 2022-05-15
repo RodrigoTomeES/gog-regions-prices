@@ -35,6 +35,37 @@
         const hour = last.substr(11, 5);
         lastUpdated = `${day}/${month} - ${hour}`;
       });
+
+    let deferredPrompt;
+    const prompt = document.getElementById("BlockInstall");
+    const button = document.getElementById("BlockInstallButton");
+    const close = document.getElementById("BlockInstallClose");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      prompt.classList.remove("hidden");
+      console.log(`'beforeinstallprompt' event was fired.`);
+    });
+
+    button.addEventListener("click", async () => {
+      prompt.classList.add("hidden");
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      deferredPrompt = null;
+    });
+
+    close.addEventListener("click", async () => {
+      prompt.classList.add("hidden");
+      deferredPrompt = null;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      prompt.classList.add("hidden");
+      deferredPrompt = null;
+      console.log("PWA was installed");
+    });
   });
 
   async function search() {
@@ -88,6 +119,34 @@
 <svelte:window on:keydown={moveOnKeyPress} />
 
 <main class="container mx-auto px-3">
+  <div
+    class="hidden bg-white shadow-2xl fixed bottom-0 left-0 right-0 z-50 p-4"
+    id="BlockInstall"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <div class="text-4xl" id="BlockInstallClose">x</div>
+      <div class="w-12">
+        <img
+          src="./icons/android/android-launchericon-48-48.png"
+          alt="GOG Regions Price logo"
+        />
+      </div>
+      <div class="max-w-[175px]">
+        <span class="block font-bold">GOG Regions Price</span>
+        <span class="block text-xs">
+          Compare GOG's prices between all regions (in dollars)
+        </span>
+      </div>
+      <div>
+        <button
+          id="BlockInstallButton"
+          class="py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >Install</button
+        >
+      </div>
+    </div>
+  </div>
+
   <div class="flex flex-wrap justify-center items-center">
     <div class="w-full flex justify-center">
       <!-- HEADER -->
