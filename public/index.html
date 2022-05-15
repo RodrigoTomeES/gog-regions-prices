@@ -16,5 +16,18 @@
 </head>
 
 <body>
+	<noscript>
+		<div>Oops! Javascript required here! Allow it and try again!</div>
+	  </noscript>
+  
+	  <script>
+		if ("serviceWorker" in navigator) {
+		  window.addEventListener("load", () => {
+			navigator.serviceWorker.register("/service-worker.js").then((reg) => {
+			  console.log("Service worker registered.", reg);
+			});
+		  });
+		}
+	  </script>
 </body>
 </html>
