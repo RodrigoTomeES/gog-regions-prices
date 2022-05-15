@@ -4,7 +4,7 @@
 const CACHE_NAME = "static-cache-gog-regions-price-v1";
 
 // Cache Files
-const FILES_TO_CACHE = ["/index.html", "/index.css"];
+const FILES_TO_CACHE = ["./index.html", "./index.css"];
 
 // install
 self.addEventListener("install", (evt) => {
