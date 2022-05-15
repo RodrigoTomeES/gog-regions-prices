@@ -4,7 +4,7 @@
 const CACHE_NAME = "static-cache-gog-regions-price-v1";
 
 // Cache Files
-const FILES_TO_CACHE = ["."];
+const FILES_TO_CACHE = ["/index.html", "/index.css"];
 
 // install
 self.addEventListener("install", (evt) => {
@@ -41,15 +41,21 @@ self.addEventListener("activate", (evt) => {
 });
 
 // listen for fetch events in page navigation and return anything that has been cached
-self.addEventListener("fetch", (evt) => {
-  console.log("[ServiceWorker] Fetch", evt.request.url);
-
-  // when not a navigation event return
-  if (evt.request.mode !== "navigate") return;
-
+self.addEventListener("fetch", (evt) =>
   evt.respondWith(
-    fetch(evt.request).catch(() =>
-      caches.open(CACHE_NAME).then((cache) => cache.match("."))
-    )
-  );
-});
+    caches.match(evt.request).then((r) => {
+      console.log(`[Servicio Worker] Feching: ${evt.request.url}`);
+      return (
+        r ||
+        fetch(evt.request).then(async (response) => {
+          const cache = await caches.open(CACHE_NAME);
+          console.log(
+            "[Servicio Worker] Caching the new resource: " + evt.request.url
+          );
+          cache(evt.request, response.clone());
+          return response;
+        })
+      );
+    })
+  )
+);
