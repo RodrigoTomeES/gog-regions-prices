@@ -52,7 +52,7 @@ self.addEventListener("fetch", (evt) =>
           console.log(
             "[Servicio Worker] Caching the new resource: " + evt.request.url
           );
-          cache(evt.request, response.clone());
+          if (typeof cache === "function") cache(evt.request, response.clone());
           return response;
         })
       );
