@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unnecessary dependencies.
 - UI/UX improvements.
 
+## [2.1.0] - 2022-06-04
+
+### Added
+
+- Now all different prices are shown.
+- Prices are shorted from cheaper to more expensive.
+
 ## [2.0.0] - 2022-05-01
 
 ### Added

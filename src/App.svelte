@@ -231,24 +231,25 @@
               </div>
               <!-- PRICES -->
               <div class="pl-3 space-y-3 pb-3">
-                {#each Object.values(game.country) as country}
+                {#each game.countryByPrice as country}
                   <div class="flex flex-inline h-5">
                     <img
                       class="h-full"
-                      src={`./flags/${country.toLowerCase()}.svg`}
-                      alt={`${country} Flag`}
+                      src={`./flags/${country["country"].toLowerCase()}.svg`}
+                      alt={`${country["country"]} Flag`}
+                      title={`${country["country"]} Flag`}
                     />
                     {#if game.sale}
                       <span class="font-medium text-blue-700 pl-2 self-center"
-                        >{game.sale[country]}$</span
+                        >{game.sale[country["country"]]}$</span
                       >
                       <span
                         class="text-sm text-red-700 line-through pl-2 self-center"
-                        >{game.price[country]}$</span
+                        >{game.price[country["country"]]}$</span
                       >
                     {:else}
                       <span class="font-medium pl-2 self-center"
-                        >{game.price[country]}$</span
+                        >{game.price[country["country"]]}$</span
                       >
                     {/if}
                   </div>
