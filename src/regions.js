@@ -1,6 +1,8 @@
 const regions = [
-  // Spain is the reference contry
+  // Spain is the reference contry for games
   "ES",
+  // Russia is the reference contry for cheaper games
+  "RU",
   "AF",
   "AX",
   "AL",
@@ -185,7 +187,6 @@ const regions = [
   "CG",
   "RE",
   "RO",
-  "RU",
   "RW",
   "BL",
   "SH",

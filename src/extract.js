@@ -125,15 +125,10 @@ function joinPrices(first, ...args) {
       category: game.category,
       url: game.url,
       image: game.image,
-      country: {},
-      contriesWithDiferentPrices: [],
-      countryByPrice: [],
       price: {},
     };
 
-    info.price[game.country] = game.price;
-    info.country[game.country] = game.country;
-    info.contriesWithDiferentPrices.push(game.country);
+    info.price[game.country] = { price: game.price, country: game.country };
 
     if (game.sale != undefined) {
       info.sale = {};
@@ -143,33 +138,23 @@ function joinPrices(first, ...args) {
     args.forEach((mapGamesOfCountry) => {
       if (mapGamesOfCountry.has(key)) {
         const gameOtherCountry = mapGamesOfCountry.get(key);
-        info.price[gameOtherCountry.country] = gameOtherCountry.price;
-        info.country[gameOtherCountry.country] = gameOtherCountry.country;
+        info.price[gameOtherCountry.country] = {
+          price: gameOtherCountry.price,
+          country: gameOtherCountry.country,
+        };
 
         if (gameOtherCountry.sale != undefined) {
           info.sale[gameOtherCountry.country] = gameOtherCountry.sale;
         }
-
-        let shouldAdd = true;
-
-        info.contriesWithDiferentPrices.every((country) => {
-          if (info.price[country] === gameOtherCountry.price) {
-            shouldAdd = false;
-            return false;
-          }
-
-          return true;
-        });
-
-        if (shouldAdd)
-          info.contriesWithDiferentPrices.push(gameOtherCountry.country);
       }
     });
 
-    info.contriesWithDiferentPrices.forEach((country) =>
-      info.countryByPrice.push({ price: info.price[country], country: country })
-    );
-    info.countryByPrice.sort(orderByPrice);
+    info.price = Object.values(info.price)
+      .sort(orderByPrice)
+      .reduce((obj, item) => {
+        obj[item.country] = info.price[item.country].price;
+        return obj;
+      }, {});
 
     newGames.push(info);
 

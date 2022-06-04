@@ -11,6 +11,7 @@
   export let lastUpdated = "";
   export let totalPages = -1;
   export let currentPage = -1;
+  export let userCountry = null;
   $: pageContent = searchResult.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
@@ -66,6 +67,8 @@
       deferredPrompt = null;
       console.log("PWA was installed");
     });
+
+    userCountry = navigator.language?.split("-")[1];
   });
 
   async function search() {
@@ -230,30 +233,56 @@
                 <div class="text-sm text-gray-600">{game.category}</div>
               </div>
               <!-- PRICES -->
-              <div class="pl-3 space-y-3 pb-3">
-                {#each game.countryByPrice as country}
+              <div class="px-3 space-y-3 pb-3">
+                {#each Object.keys(game.price).slice(0, 4) as country}
                   <div class="flex flex-inline h-5">
                     <img
                       class="h-full"
-                      src={`./flags/${country["country"].toLowerCase()}.svg`}
-                      alt={`${country["country"]} Flag`}
-                      title={`${country["country"]} Flag`}
+                      src={`./flags/${country.toLowerCase()}.svg`}
+                      alt={`${country} Flag`}
+                      title={`${country} Flag`}
                     />
                     {#if game.sale}
                       <span class="font-medium text-blue-700 pl-2 self-center"
-                        >{game.sale[country["country"]]}$</span
+                        >{game.sale[country]}$</span
                       >
                       <span
                         class="text-sm text-red-700 line-through pl-2 self-center"
-                        >{game.price[country["country"]]}$</span
+                        >{game.price[country]}$</span
                       >
                     {:else}
                       <span class="font-medium pl-2 self-center"
-                        >{game.price[country["country"]]}$</span
+                        >{game.price[country]}$</span
                       >
                     {/if}
                   </div>
                 {/each}
+
+                {#if userCountry && game.price[userCountry]}
+                  <div class="h-[1px] bg-slate-300 w-full" />
+
+                  <div class="flex flex-inline h-5">
+                    <img
+                      class="h-full"
+                      src={`./flags/${userCountry.toLowerCase()}.svg`}
+                      alt={`${userCountry} Flag`}
+                      title={`${userCountry} Flag`}
+                    />
+                    {#if game.sale}
+                      <span class="font-medium text-blue-700 pl-2 self-center"
+                        >{game.sale[userCountry]}$</span
+                      >
+                      <span
+                        class="text-sm text-red-700 line-through pl-2 self-center"
+                        >{game.price[userCountry]}$</span
+                      >
+                    {:else}
+                      <span class="font-medium pl-2 self-center"
+                        >{game.price[userCountry]}$</span
+                      >
+                    {/if}
+                  </div>
+                {/if}
               </div>
               <!-- END PRICES -->
             </div>
