@@ -1,6 +1,6 @@
 name: Auto update DB and Deploy
 on:
-  push:
+  workflow_dispatch:
   schedule:
     - cron: '0 5,13,21 * * *'
 
