@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unnecessary dependencies.
 - UI/UX improvements.
 
+## [2.2.0] - 2022-07-10
+
+### Added
+
+- Added first and last button to pagination.
+
+### Changed
+
+- Now are fetched all contries to compare prices instead of regions.
+- Now only displayed the four cheapest countries and the locale country.
+
+### Fixed
+
+- Fixed pagination when an empty string is searched
+
 ## [2.1.0] - 2022-06-04
 
 ### Added
