@@ -86,9 +86,10 @@
       searchResult = games.filter((game) =>
         game.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
       );
-      totalPages = Math.floor(searchResult.length / PAGE_SIZE) + 1;
-      currentPage = 1;
     }
+
+    totalPages = Math.floor(searchResult.length / PAGE_SIZE) + 1;
+    currentPage = 1;
   }
 
   const onKeyPress = (e) => {
