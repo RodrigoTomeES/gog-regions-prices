@@ -224,7 +224,7 @@
             role="listitem"
           >
             <div
-              class="rounded overflow-hidden hover:shadow-lg border-r border-b border-l border-gray-300 flex-1"
+              class="rounded overflow-hidden hover:shadow-lg border-r border-b border-l border-gray-300 flex-1 flex flex-col"
             >
               <img
                 class="w-full"
@@ -233,8 +233,8 @@
                 title={game.title}
                 loading="lazy"
               />
-              <div class="px-2 py-2">
-                <div class="font-bold text-md">{game.title}</div>
+              <div class="px-2 py-2 flex-grow">
+                <div class="font-bold text-md line-clamp-2">{game.title}</div>
                 <div class="text-sm text-gray-600">{game.category}</div>
               </div>
               <!-- PRICES -->
