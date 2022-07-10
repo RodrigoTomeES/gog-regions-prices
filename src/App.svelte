@@ -115,7 +115,11 @@
   }
 
   function movePage(direction) {
-    currentPage = currentPage + direction;
+    setPage(currentPage + direction);
+  }
+
+  function setPage(page) {
+    currentPage = page;
     document.getElementById("games").scrollIntoView();
   }
 </script>
@@ -295,17 +299,25 @@
 
     <!-- PAGINATION -->
     <div class="flex flex-inline w-full mb-2">
-      <div class="w-1/3 px-1 ">
+      <div class="w-1/3 px-1 inline-flex gap-1">
+        <button
+          on:click={() => setPage(1)}
+          disabled={currentPage <= 1}
+          class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          &lt;&lt; First
+        </button>
+
         <button
           on:click={previousPage}
           disabled={currentPage <= 1}
           class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          &lt;&lt; Previous</button
-        >
+          &lt;&lt; Previous
+        </button>
       </div>
 
-      <div class="w-1/3 px-1 ">
+      <div class="w-1/3 px-1">
         <div
           class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
@@ -315,14 +327,22 @@
         </div>
       </div>
 
-      <div class="w-1/3 px-1 ">
+      <div class="w-1/3 px-1 inline-flex gap-1">
         <button
           on:click={nextPage}
           disabled={currentPage >= totalPages}
           class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          Next &gt;&gt;</button
+          Next &gt;&gt;
+        </button>
+
+        <button
+          on:click={() => setPage(totalPages)}
+          disabled={currentPage >= totalPages}
+          class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
+          Last &gt;&gt;
+        </button>
       </div>
     </div>
 
