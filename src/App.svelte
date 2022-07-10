@@ -110,6 +110,7 @@
   function nextPage() {
     if (currentPage < totalPages) movePage(1);
   }
+
   function previousPage() {
     if (currentPage > 1) movePage(-1);
   }
@@ -149,8 +150,9 @@
         <button
           id="BlockInstallButton"
           class="py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >Install</button
         >
+          Install
+        </button>
       </div>
     </div>
   </div>
@@ -164,13 +166,15 @@
           <h1 class="text-center text-3xl font-extrabold text-gray-900 ">
             GOG Regions Prices
           </h1>
+
           <p class="text-sm text-gray-700 text-center">
             If you know of any missing game report it on
             <a
               class="text-blue-700 underline"
               href="https://github.com/RodrigoTomeES/gog-regions-prices"
-              >Github</a
             >
+              Github
+            </a>
           </p>
 
           {#if lastUpdated}
@@ -248,17 +252,18 @@
                       title={`${country} Flag`}
                     />
                     {#if game.sale}
-                      <span class="font-medium text-blue-700 pl-2 self-center"
-                        >{game.sale[country]}$</span
-                      >
+                      <span class="font-medium text-blue-700 pl-2 self-center">
+                        {game.sale[country]}$
+                      </span>
                       <span
                         class="text-sm text-red-700 line-through pl-2 self-center"
-                        >{game.price[country]}$</span
                       >
+                        {game.price[country]}$
+                      </span>
                     {:else}
-                      <span class="font-medium pl-2 self-center"
-                        >{game.price[country]}$</span
-                      >
+                      <span class="font-medium pl-2 self-center">
+                        {game.price[country]}$
+                      </span>
                     {/if}
                   </div>
                 {/each}
@@ -274,17 +279,18 @@
                       title={`${userCountry} Flag`}
                     />
                     {#if game.sale}
-                      <span class="font-medium text-blue-700 pl-2 self-center"
-                        >{game.sale[userCountry]}$</span
-                      >
+                      <span class="font-medium text-blue-700 pl-2 self-center">
+                        {game.sale[userCountry]}$
+                      </span>
                       <span
                         class="text-sm text-red-700 line-through pl-2 self-center"
-                        >{game.price[userCountry]}$</span
                       >
+                        {game.price[userCountry]}$
+                      </span>
                     {:else}
-                      <span class="font-medium pl-2 self-center"
-                        >{game.price[userCountry]}$</span
-                      >
+                      <span class="font-medium pl-2 self-center">
+                        {game.price[userCountry]}$
+                      </span>
                     {/if}
                   </div>
                 {/if}
