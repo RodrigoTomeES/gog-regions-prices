@@ -165,7 +165,7 @@
             GOG Regions Prices
           </h1>
           <p class="text-sm text-gray-700 text-center">
-            If your country has a different price report it in
+            If you know of any missing game report it on
             <a
               class="text-blue-700 underline"
               href="https://github.com/RodrigoTomeES/gog-regions-prices"
