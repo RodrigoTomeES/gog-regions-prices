@@ -143,7 +143,7 @@
       <div class="max-w-[175px]">
         <span class="block font-bold">GOG Regions Price</span>
         <span class="block text-xs">
-          Compare GOG's prices between all regions (in dollars)
+          Compare GOG's prices between all countries (in dollars)
         </span>
       </div>
       <div>
@@ -168,13 +168,13 @@
           </h1>
 
           <p class="text-sm text-gray-700 text-center">
-            If you know of any missing game report it on
+            If you know of any missing game, report it on
             <a
               class="text-blue-700 underline"
               href="https://github.com/RodrigoTomeES/gog-regions-prices"
             >
               Github
-            </a>
+            </a>.
           </p>
 
           {#if lastUpdated}
@@ -311,7 +311,7 @@
           disabled={currentPage <= 1}
           class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          &lt;&lt; First
+          &lt;&lt;
         </button>
 
         <button
@@ -319,7 +319,7 @@
           disabled={currentPage <= 1}
           class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          &lt;&lt; Previous
+          &lt;
         </button>
       </div>
 
@@ -339,7 +339,7 @@
           disabled={currentPage >= totalPages}
           class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          Next &gt;&gt;
+          &gt;
         </button>
 
         <button
@@ -347,7 +347,7 @@
           disabled={currentPage >= totalPages}
           class="disabled:opacity-50 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          Last &gt;&gt;
+          &gt;&gt;
         </button>
       </div>
     </div>
