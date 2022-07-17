@@ -7,6 +7,7 @@ on:
 jobs:
   run:
     name: Update games DB
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
