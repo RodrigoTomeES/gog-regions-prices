@@ -130,7 +130,7 @@ function joinPrices(first, ...args) {
 
     info.price[game.country] = { price: game.price, country: game.country };
 
-    if (game.sale != undefined) {
+    if (game.hasOwnProperty("sale")) {
       info.sale = {};
       info.sale[game.country] = game.sale;
     }
@@ -143,7 +143,7 @@ function joinPrices(first, ...args) {
           country: gameOtherCountry.country,
         };
 
-        if (gameOtherCountry.sale != undefined) {
+        if (gameOtherCountry.hasOwnProperty("sale")) {
           info.sale[gameOtherCountry.country] = gameOtherCountry.sale;
         }
       }
