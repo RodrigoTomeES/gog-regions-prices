@@ -42,13 +42,6 @@
     const button = document.getElementById("BlockInstallButton");
     const close = document.getElementById("BlockInstallClose");
 
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      prompt.classList.remove("hidden");
-      console.log(`'beforeinstallprompt' event was fired.`);
-    });
-
     button.addEventListener("click", async () => {
       prompt.classList.add("hidden");
       deferredPrompt.prompt();
@@ -62,6 +55,13 @@
       deferredPrompt = null;
     });
 
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      prompt.classList.remove("hidden");
+      console.log(`'beforeinstallprompt' event was fired.`);
+    });
+
     window.addEventListener("appinstalled", () => {
       prompt.classList.add("hidden");
       deferredPrompt = null;
@@ -71,7 +71,7 @@
     userCountry = navigator.language?.split("-")[1];
   });
 
-  async function search() {
+  const search = async () => {
     if (searchTerm.trim() == "") {
       searchResult = sales;
     } else {
@@ -90,7 +90,7 @@
 
     totalPages = Math.floor(searchResult.length / PAGE_SIZE) + 1;
     currentPage = 1;
-  }
+  };
 
   const onKeyPress = (e) => {
     if (e.charCode === 13) search();
@@ -107,22 +107,30 @@
     win.focus();
   };
 
-  function nextPage() {
+  const nextPage = () => {
     if (currentPage < totalPages) movePage(1);
-  }
+  };
 
-  function previousPage() {
+  const previousPage = () => {
     if (currentPage > 1) movePage(-1);
-  }
+  };
 
-  function movePage(direction) {
+  const movePage = (direction) => {
     setPage(currentPage + direction);
-  }
+  };
 
-  function setPage(page) {
+  const setPage = (page) => {
     currentPage = page;
     document.getElementById("games").scrollIntoView();
-  }
+  };
+
+  const percentOfDiscount = (countryPrice, userCountryPrice) =>
+    Math.round(
+      (100 - (countryPrice * 100) / userCountryPrice + Number.EPSILON) * 100
+    ) / 100;
+
+  const isCheaper = (countryPrice, userCountryPrice) =>
+    parseFloat(countryPrice) < parseFloat(userCountryPrice);
 </script>
 
 <svelte:window on:keydown={moveOnKeyPress} />
@@ -260,6 +268,41 @@
                       >
                         {game.price[country]}$
                       </span>
+
+                      {#if userCountry && game.price[userCountry]}
+                        <span
+                          class="text-sm {isCheaper(
+                            game.price[country],
+                            game.price[userCountry]
+                          )
+                            ? 'text-green-700'
+                            : 'text-red-700'} pl-2 self-center"
+                        >
+                          {game.sale
+                            ? `${
+                                isCheaper(
+                                  game.price[country],
+                                  game.price[userCountry]
+                                )
+                                  ? "-"
+                                  : "+"
+                              }${percentOfDiscount(
+                                game.sale[country],
+                                game.sale[userCountry]
+                              )}`
+                            : `${
+                                isCheaper(
+                                  game.price[country],
+                                  game.price[userCountry]
+                                )
+                                  ? "-"
+                                  : "+"
+                              }${percentOfDiscount(
+                                game.price[country],
+                                game.price[userCountry]
+                              )}`}%
+                        </span>
+                      {/if}
                     {:else}
                       <span class="font-medium pl-2 self-center">
                         {game.price[country]}$
