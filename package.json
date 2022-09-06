@@ -1,6 +1,6 @@
 {
   "name": "gog-regions-prices",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Compare GOG's prices between all regions (in dollars)",
   "author": "Rodrigo Tomé Nieto <hi@rodrigotome.es>",
   "scripts": {

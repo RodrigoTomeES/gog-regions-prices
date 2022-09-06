@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unnecessary dependencies.
 - UI/UX improvements.
 
+## [2.3.0] - 2022-09-06
+
+### Added
+
+- Now you can view the percentage discount of game with regard to the visitor's country
+
 ## [2.2.0] - 2022-07-10
 
 ### Added
