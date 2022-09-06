@@ -6,6 +6,7 @@ const gamesDB = `${__dirname}/../public/games.json`;
 const salesDB = `${__dirname}/../public/sales.json`;
 const lastUpdate = `${__dirname}/../public/lastUpdate.json`;
 const GRACE_TIME = 750;
+const MAX_RETRIES = 5;
 
 updateGOGGames();
 
@@ -48,38 +49,62 @@ async function updateGOGGames(maxPages = undefined) {
 }
 
 function getGames(country, maxPages) {
-  return new Promise(async (resolve, _) => {
+  return new Promise(async (resolve, reject) => {
+    const games = new Map();
     let page = 1,
-      totalPages = maxPages,
-      games = new Map();
+      totalPages = maxPages;
 
     do {
-      if (page % 10 == 1) console.info(`  ${country} - Page ${page}`);
-      const result = await getGOGData(country, page);
-      totalPages = totalPages || result.totalPages;
+      const currentPage = `${country} - Page ${page}`;
+      let currentRetry = 0;
+      let hasError = false;
 
-      result.products
-        .filter((product) => product.isGame)
-        .forEach((product) => {
-          const mapped = {
-            id: product.id,
-            title: product.title,
-            category: product.category,
-            url: product.url,
-            image: product.image,
-            price: product.price.baseAmount,
-            country: country,
-          };
+      if (page % 10 == 1) console.info(`  ${currentPage}`);
 
-          if (product.price.baseAmount != product.price.finalAmount) {
-            mapped.sale = product.price.finalAmount;
-          }
+      const getResult = async (country, page) => {
+        const result = await getGOGData(country, page);
+        totalPages = totalPages || result.totalPages;
 
-          games.set(product.id, mapped);
-        });
+        result.products
+          .filter((product) => product.isGame)
+          .forEach((product) => {
+            const mapped = {
+              id: product.id,
+              title: product.title,
+              category: product.category,
+              url: product.url,
+              image: product.image,
+              price: product.price.baseAmount,
+              country: country,
+            };
+
+            if (product.price.baseAmount != product.price.finalAmount) {
+              mapped.sale = product.price.finalAmount;
+            }
+
+            games.set(product.id, mapped);
+          });
+      };
+
+      do {
+        try {
+          await getResult(country, page);
+          hasError = false;
+        } catch (error) {
+          currentRetry++;
+          hasError = true;
+          console.error(
+            `  There was an error getting games of ${currentPage} (Retry: ${currentRetry}), retrying...`
+          );
+          await sleep(GRACE_TIME);
+        }
+      } while (currentRetry < MAX_RETRIES && hasError);
+
+      if (hasError)
+        reject(new Error(`Games could not be retrieved of ${currentPage}`));
 
       await sleep(GRACE_TIME);
-    } while (page++ != totalPages);
+    } while (page++ !== totalPages);
 
     resolve(games);
   });
@@ -88,7 +113,7 @@ function getGames(country, maxPages) {
 function getGOGData(country, page) {
   return new Promise((resolve, reject) => {
     request(options(country, page), (error, response, body) => {
-      if (error || response.statusCode == 500) {
+      if (error || response.statusCode === 500) {
         reject(error);
       } else if (!error && response.statusCode == 200 && IsJsonString(body)) {
         resolve(JSON.parse(body));
