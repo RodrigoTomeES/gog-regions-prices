@@ -269,44 +269,44 @@
                       >
                         {game.price[country]}$
                       </span>
-
-                      {#if userCountry && game.price[userCountry]}
-                        <span
-                          class="text-sm {isCheaper(
-                            game.price[country],
-                            game.price[userCountry]
-                          )
-                            ? 'text-green-700'
-                            : 'text-red-700'} pl-2 self-center"
-                        >
-                          {game.sale
-                            ? `${
-                                isCheaper(
-                                  game.price[country],
-                                  game.price[userCountry]
-                                )
-                                  ? "-"
-                                  : "+"
-                              }${percentOfDiscount(
-                                game.sale[country],
-                                game.sale[userCountry]
-                              )}`
-                            : `${
-                                isCheaper(
-                                  game.price[country],
-                                  game.price[userCountry]
-                                )
-                                  ? "-"
-                                  : "+"
-                              }${percentOfDiscount(
-                                game.price[country],
-                                game.price[userCountry]
-                              )}`}%
-                        </span>
-                      {/if}
                     {:else}
                       <span class="font-medium pl-2 self-center">
                         {game.price[country]}$
+                      </span>
+                    {/if}
+
+                    {#if userCountry && game.price[userCountry] && parseFloat(game.price[country]) !== 0}
+                      <span
+                        class="text-sm {isCheaper(
+                          game.price[country],
+                          game.price[userCountry]
+                        )
+                          ? 'text-green-700'
+                          : 'text-red-700'} pl-2 self-center"
+                      >
+                        {game.sale
+                          ? `${
+                              isCheaper(
+                                game.price[country],
+                                game.price[userCountry]
+                              )
+                                ? "-"
+                                : "+"
+                            }${percentOfDiscount(
+                              game.sale[country],
+                              game.sale[userCountry]
+                            )}`
+                          : `${
+                              isCheaper(
+                                game.price[country],
+                                game.price[userCountry]
+                              )
+                                ? "-"
+                                : "+"
+                            }${percentOfDiscount(
+                              game.price[country],
+                              game.price[userCountry]
+                            )}`}%
                       </span>
                     {/if}
                   </div>
