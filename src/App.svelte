@@ -232,6 +232,7 @@
         {#each pageContent as game}
           <div
             on:click={openLink(game.url)}
+            on:keypress={openLink(game.url)}
             class="cursor-pointer flex flex-col w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 px-1 pb-3"
             role="listitem"
           >
