@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unnecessary dependencies.
 - UI/UX improvements.
 
+## [2.4.0] - 2022-10-27
+
+### Added
+
+- Added select to show Sales or All games ordered by discount range
+
 ## [2.3.1] - 2022-10-17
 
 ### Fixed
