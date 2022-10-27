@@ -5,8 +5,9 @@ const regions = require("./regions");
 const gamesDB = `${__dirname}/../public/games.json`;
 const salesDB = `${__dirname}/../public/sales.json`;
 const lastUpdate = `${__dirname}/../public/lastUpdate.json`;
-const GRACE_TIME = 750;
+const GRACE_TIME = 1000;
 const MAX_RETRIES = 5;
+const COUNTRY_OF_REFERENCE = "ES";
 
 updateGOGGames();
 
@@ -129,6 +130,10 @@ function getGOGData(country, page) {
 
 const orderByID = (a, b) => a.id - b.id;
 const orderByPrice = (a, b) => a.price - b.price;
+const percentOfDiscount = (countryPrice, userCountryPrice) =>
+  Math.round(
+    (100 - (countryPrice * 100) / userCountryPrice + Number.EPSILON) * 100
+  ) / 100;
 
 function options(country = "RU", page = 1) {
   return {
@@ -157,7 +162,10 @@ function joinPrices(first, ...args) {
 
     if (game.hasOwnProperty("sale")) {
       info.sale = {};
-      info.sale[game.country] = game.sale;
+      info.sale[game.country] = {
+        price: game.sale,
+        country: game.country,
+      };
     }
 
     args.forEach((mapGamesOfCountry) => {
@@ -169,7 +177,10 @@ function joinPrices(first, ...args) {
         };
 
         if (gameOtherCountry.hasOwnProperty("sale")) {
-          info.sale[gameOtherCountry.country] = gameOtherCountry.sale;
+          info.sale[gameOtherCountry.country] = {
+            price: gameOtherCountry.sale,
+            country: gameOtherCountry.country,
+          };
         }
       }
     });
@@ -180,6 +191,27 @@ function joinPrices(first, ...args) {
         obj[item.country] = info.price[item.country].price;
         return obj;
       }, {});
+
+    if (info.hasOwnProperty("sale")) {
+      info.sale = Object.values(info.sale)
+        .sort(orderByPrice)
+        .reduce((obj, item) => {
+          obj[item.country] = info.sale[item.country].price;
+          return obj;
+        }, {});
+
+      const CHEAPEST_COUNTRY = Object.keys(info.sale)[0];
+      info["discount-rate"] = percentOfDiscount(
+        info.sale[CHEAPEST_COUNTRY],
+        info.sale[COUNTRY_OF_REFERENCE]
+      );
+    } else {
+      const CHEAPEST_COUNTRY = Object.keys(info.price)[0];
+      info["discount-rate"] = percentOfDiscount(
+        info.price[CHEAPEST_COUNTRY],
+        info.price[COUNTRY_OF_REFERENCE]
+      );
+    }
 
     newGames.push(info);
 

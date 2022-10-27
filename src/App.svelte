@@ -8,6 +8,7 @@
 
   export let games = [];
   export let sales = [];
+  export let gamesByDiscount = [];
   export let lastUpdated = "";
   export let totalPages = -1;
   export let currentPage = -1;
@@ -70,6 +71,25 @@
 
     userCountry = navigator.language?.split("-")[1];
   });
+
+  const orderBy = async (order) => {
+    if (order === "discount") {
+      if (gamesByDiscount.length === 0)
+        await fetch("./games.json")
+          .then((r) => r.json())
+          .then((data) => {
+            gamesByDiscount = data.sort(
+              (a, b) => a["discount-rate"] < b["discount-rate"]
+            );
+          });
+
+      searchResult = gamesByDiscount;
+    } else {
+      searchResult = sales;
+    }
+
+    totalPages = Math.floor(searchResult.length / PAGE_SIZE) + 1;
+  };
 
   const search = async () => {
     if (searchTerm.trim() == "") {
@@ -193,6 +213,14 @@
           {/if}
         </div>
         <!-- END TITLE -->
+
+        <select
+          on:change={(e) => orderBy(e.target.value)}
+          class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+        >
+          <option value="sales">Sales</option>
+          <option value="discount">All games by discount rate</option>
+        </select>
 
         <!-- SEARCH -->
         <div class="rounded-md shadow-sm -space-y-px">
