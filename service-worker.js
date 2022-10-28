@@ -1,7 +1,7 @@
 "use strict";
 
 // Cache Name
-const CACHE_STATIC = "static-cache-gog-regions-price-v3";
+const CACHE_STATIC = "static-cache-gog-regions-price-v4";
 const CACHE_DYNAMIC = "dynamic-cache-gog-regions-price-v1";
 
 // Cache Files
