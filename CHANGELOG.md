@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unnecessary dependencies.
 - UI/UX improvements.
 
+## [2.4.1] - 2023-01-29
+
+### Fixed
+
+- Fixed GOG extracted games, due a GOG API limitation the number of countries had been limited to 7.
+
 ## [2.4.0] - 2022-10-27
 
 ### Added

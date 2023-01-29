@@ -4,6 +4,8 @@
 
 A WebApp where you can see the price of a given game on GOG's platform in all regions, so you can compare the difference in the price and choose where to buy the game.
 
+**From v2.4.1 the webpage only scrap this countries: ES, RU, AR, CN, SE, AM, NO and BR.**
+
 ## How does it work?
 
 Using GitHub actions and a cron job, it obtains the prices for all games from all regions and saves them in the repo. Using that information, a simple web consumes this data to show the best deals when it comes to regional pricing between those countries
