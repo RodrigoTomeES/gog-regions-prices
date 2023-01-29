@@ -5,13 +5,14 @@ const regions = require("./regions");
 const gamesDB = `${__dirname}/../public/games.json`;
 const salesDB = `${__dirname}/../public/sales.json`;
 const lastUpdate = `${__dirname}/../public/lastUpdate.json`;
-const GRACE_TIME = 1000;
-const MAX_RETRIES = 5;
+const GRACE_TIME = 125;
+const MAX_RETRIES = 15;
 const COUNTRY_OF_REFERENCE = "ES";
 
 updateGOGGames();
 
 async function updateGOGGames(maxPages = undefined) {
+  console.time("updateGOGGames");
   console.info(
     `Retrieving information from GOG with Max Pages set to ${maxPages}`
   );
@@ -26,9 +27,15 @@ async function updateGOGGames(maxPages = undefined) {
   }
 
   console.info(" Obtaining games prices...");
-  const games = await Promise.all(
-    regions.map(async (country) => await getGames(country, maxPages))
-  );
+
+  const games = [];
+  const regionsLength = regions.length;
+
+  for (let i = 0; i < regionsLength; i++) {
+    const country = regions[i];
+    const countryGames = await getGames(country, maxPages);
+    games.push(countryGames);
+  }
 
   console.info(" Putting everything together...");
   const [newGames, newSales] = joinPrices(...games);
@@ -47,6 +54,8 @@ async function updateGOGGames(maxPages = undefined) {
   } else {
     console.info(" NOTHING CHANGED SINCE LAST RUN, aborting...");
   }
+
+  console.timeEnd("updateGOGGames");
 }
 
 function getGames(country, maxPages) {
@@ -64,6 +73,10 @@ function getGames(country, maxPages) {
 
       const getResult = async (country, page) => {
         const result = await getGOGData(country, page);
+
+        if (result.products.length === 0)
+          throw Error("GOG blocked the API call");
+
         totalPages = totalPages || result.totalPages;
 
         result.products
@@ -97,7 +110,7 @@ function getGames(country, maxPages) {
           console.error(
             `  There was an error getting games of ${currentPage} (Retry: ${currentRetry}), retrying...`
           );
-          await sleep(GRACE_TIME);
+          await sleep(randomGraceTime(GRACE_TIME, GRACE_TIME * currentRetry));
         }
       } while (currentRetry < MAX_RETRIES && hasError);
 
@@ -234,4 +247,8 @@ function IsJsonString(str) {
     return false;
   }
   return true;
+}
+
+function randomGraceTime(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
