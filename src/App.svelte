@@ -191,7 +191,7 @@
       <div class="block space-y-3 w-full md:w-1/3 py-3">
         <!-- TITLE -->
         <div class="justify-center w-full">
-          <h1 class="text-center text-3xl font-extrabold text-gray-900 ">
+          <h1 class="text-center text-3xl font-extrabold text-gray-900">
             GOG Regions Prices
           </h1>
 
@@ -256,122 +256,129 @@
 
     <!-- RESULTS -->
     <div class="flex w-full" id="games">
-      <div class="flex flex-wrap w-full" role="list">
-        {#each pageContent as game}
-          <div
-            on:click={openLink(game.url)}
-            on:keypress={openLink(game.url)}
-            class="cursor-pointer flex flex-col w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 px-1 pb-3"
-            role="listitem"
-          >
+      <ul class="flex flex-wrap w-full">
+        {#each pageContent as game, index}
+          <li>
             <div
-              class="rounded overflow-hidden hover:shadow-lg border-r border-b border-l border-gray-300 flex-1 flex flex-col"
+              on:click={openLink(game.url)}
+              on:keypress={openLink(game.url)}
+              class="cursor-pointer flex flex-col w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 px-1 pb-3"
+              role="button"
+              tabindex={index}
             >
-              <img
-                class="w-full"
-                src={game.image + "_200.jpg"}
-                alt={game.title}
-                title={game.title}
-                loading="lazy"
-              />
-              <div class="px-2 py-2 flex-grow">
-                <div class="font-bold text-md line-clamp-2">{game.title}</div>
-                <div class="text-sm text-gray-600">{game.category}</div>
-              </div>
-              <!-- PRICES -->
-              <div class="px-3 space-y-3 pb-3">
-                {#each Object.keys(game.price).slice(0, 4) as country}
-                  <div class="flex flex-inline h-5">
-                    <img
-                      class="h-full"
-                      src={`./flags/${country.toLowerCase()}.svg`}
-                      alt={`${country} Flag`}
-                      title={`${country} Flag`}
-                    />
-                    {#if game.sale}
-                      <span class="font-medium text-blue-700 pl-2 self-center">
-                        {game.sale[country]}$
-                      </span>
-                      <span
-                        class="text-sm text-red-700 line-through pl-2 self-center"
-                      >
-                        {game.price[country]}$
-                      </span>
-                    {:else}
-                      <span class="font-medium pl-2 self-center">
-                        {game.price[country]}$
-                      </span>
-                    {/if}
+              <div
+                class="rounded overflow-hidden hover:shadow-lg border-r border-b border-l border-gray-300 flex-1 flex flex-col"
+              >
+                <img
+                  class="w-full"
+                  src={game.image + "_200.jpg"}
+                  alt={game.title}
+                  title={game.title}
+                  loading="lazy"
+                />
+                <div class="px-2 py-2 flex-grow">
+                  <div class="font-bold text-md line-clamp-2">{game.title}</div>
+                  <div class="text-sm text-gray-600">{game.category}</div>
+                </div>
+                <!-- PRICES -->
+                <div class="px-3 space-y-3 pb-3">
+                  {#each Object.keys(game.price).slice(0, 4) as country}
+                    <div class="flex flex-inline h-5">
+                      <img
+                        class="h-full"
+                        src={`./flags/${country.toLowerCase()}.svg`}
+                        alt={`${country} Flag`}
+                        title={`${country} Flag`}
+                      />
+                      {#if game.sale}
+                        <span
+                          class="font-medium text-blue-700 pl-2 self-center"
+                        >
+                          {game.sale[country]}$
+                        </span>
+                        <span
+                          class="text-sm text-red-700 line-through pl-2 self-center"
+                        >
+                          {game.price[country]}$
+                        </span>
+                      {:else}
+                        <span class="font-medium pl-2 self-center">
+                          {game.price[country]}$
+                        </span>
+                      {/if}
 
-                    {#if userCountry && game.price[userCountry] && parseFloat(game.price[country]) !== 0}
-                      <span
-                        class="text-sm {isCheaper(
-                          game.price[country],
-                          game.price[userCountry]
-                        )
-                          ? 'text-green-700'
-                          : 'text-red-700'} pl-2 self-center"
-                      >
-                        {game.sale
-                          ? `${
-                              isCheaper(
+                      {#if userCountry && game.price[userCountry] && parseFloat(game.price[country]) !== 0}
+                        <span
+                          class="text-sm {isCheaper(
+                            game.price[country],
+                            game.price[userCountry]
+                          )
+                            ? 'text-green-700'
+                            : 'text-red-700'} pl-2 self-center"
+                        >
+                          {game.sale
+                            ? `${
+                                isCheaper(
+                                  game.price[country],
+                                  game.price[userCountry]
+                                )
+                                  ? "-"
+                                  : "+"
+                              }${percentOfDiscount(
+                                game.sale[country],
+                                game.sale[userCountry]
+                              )}`
+                            : `${
+                                isCheaper(
+                                  game.price[country],
+                                  game.price[userCountry]
+                                )
+                                  ? "-"
+                                  : "+"
+                              }${percentOfDiscount(
                                 game.price[country],
                                 game.price[userCountry]
-                              )
-                                ? "-"
-                                : "+"
-                            }${percentOfDiscount(
-                              game.sale[country],
-                              game.sale[userCountry]
-                            )}`
-                          : `${
-                              isCheaper(
-                                game.price[country],
-                                game.price[userCountry]
-                              )
-                                ? "-"
-                                : "+"
-                            }${percentOfDiscount(
-                              game.price[country],
-                              game.price[userCountry]
-                            )}`}%
-                      </span>
-                    {/if}
-                  </div>
-                {/each}
+                              )}`}%
+                        </span>
+                      {/if}
+                    </div>
+                  {/each}
 
-                {#if userCountry && game.price[userCountry]}
-                  <div class="h-[1px] bg-slate-300 w-full" />
+                  {#if userCountry && game.price[userCountry]}
+                    <div class="h-[1px] bg-slate-300 w-full" />
 
-                  <div class="flex flex-inline h-5">
-                    <img
-                      class="h-full"
-                      src={`./flags/${userCountry.toLowerCase()}.svg`}
-                      alt={`${userCountry} Flag`}
-                      title={`${userCountry} Flag`}
-                    />
-                    {#if game.sale}
-                      <span class="font-medium text-blue-700 pl-2 self-center">
-                        {game.sale[userCountry]}$
-                      </span>
-                      <span
-                        class="text-sm text-red-700 line-through pl-2 self-center"
-                      >
-                        {game.price[userCountry]}$
-                      </span>
-                    {:else}
-                      <span class="font-medium pl-2 self-center">
-                        {game.price[userCountry]}$
-                      </span>
-                    {/if}
-                  </div>
-                {/if}
+                    <div class="flex flex-inline h-5">
+                      <img
+                        class="h-full"
+                        src={`./flags/${userCountry.toLowerCase()}.svg`}
+                        alt={`${userCountry} Flag`}
+                        title={`${userCountry} Flag`}
+                      />
+                      {#if game.sale}
+                        <span
+                          class="font-medium text-blue-700 pl-2 self-center"
+                        >
+                          {game.sale[userCountry]}$
+                        </span>
+                        <span
+                          class="text-sm text-red-700 line-through pl-2 self-center"
+                        >
+                          {game.price[userCountry]}$
+                        </span>
+                      {:else}
+                        <span class="font-medium pl-2 self-center">
+                          {game.price[userCountry]}$
+                        </span>
+                      {/if}
+                    </div>
+                  {/if}
+                </div>
+                <!-- END PRICES -->
               </div>
-              <!-- END PRICES -->
             </div>
-          </div>
+          </li>
         {/each}
-      </div>
+      </ul>
     </div>
     <!-- END RESULTS-->
 
