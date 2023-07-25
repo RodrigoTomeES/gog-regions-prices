@@ -5,8 +5,8 @@ const regions = require("./regions");
 const gamesDB = `${__dirname}/../public/games.json`;
 const salesDB = `${__dirname}/../public/sales.json`;
 const lastUpdate = `${__dirname}/../public/lastUpdate.json`;
-const GRACE_TIME = 125;
-const MAX_RETRIES = 15;
+const GRACE_TIME = 200;
+const MAX_RETRIES = 25;
 const COUNTRY_OF_REFERENCE = "ES";
 
 updateGOGGames();
