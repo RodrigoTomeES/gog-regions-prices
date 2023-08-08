@@ -190,6 +190,8 @@ function joinPrices(first, ...args) {
         };
 
         if (gameOtherCountry.hasOwnProperty("sale")) {
+          if (!info.hasOwnProperty("sale")) info.sale = {};
+
           info.sale[gameOtherCountry.country] = {
             price: gameOtherCountry.sale,
             country: gameOtherCountry.country,
