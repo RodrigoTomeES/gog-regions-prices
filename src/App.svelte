@@ -123,16 +123,29 @@
     if (e.keyCode === 39) nextPage();
   };
 
-  const onKeyDown = (e) => {
+  // The event handler onKeyDown must be a function to access
+  // to this.selectionStart
+  function onKeyDown(e) {
+    e.stopPropagation();
+
+    if (e.key === "Enter") document.activeElement.blur();
+
+    const futureValue = [...e.target.value];
+    // TODO: Refactor with toSplice when it has more browser support
+    futureValue.splice(this.selectionStart, 0, e.key);
+
     const isNumber = !isNaN(e.key);
-    const number = isNumber ? parseInt(e.target.value + e.key) : 0;
+    const number = isNumber ? parseInt(futureValue.join("")) : 0;
 
     if (
-      (!isNumber && e.key !== "Backspace") ||
+      (!isNumber &&
+        e.key !== "Backspace" &&
+        e.key !== "ArrowLeft" &&
+        e.key !== "ArrowRight") ||
       (isNumber && number > totalPages)
     )
       e.preventDefault();
-  };
+  }
 
   const openLink = (url) => {
     let win = window.open(`https://www.gog.com${url}`, "_blank");
@@ -418,11 +431,10 @@
         for="page"
         class="group relative focus-within:border focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 w-1/3 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       >
+        <!-- The input must can't be number if you need to access to this.selectionStart -->
         <input
           id="page"
-          type="number"
-          min={1}
-          max={totalPages}
+          type="text"
           bind:value={currentPage}
           on:keydown={onKeyDown}
           class="border-none bg-transparent no-number-spinner max-w-[3ch] text-right focus:ring-0 focus:ring-offset-transparent focus:outline-none select-none"
