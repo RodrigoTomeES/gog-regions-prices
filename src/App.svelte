@@ -89,6 +89,7 @@
     }
 
     totalPages = Math.floor(searchResult.length / PAGE_SIZE) + 1;
+    currentPage = 1;
   };
 
   const search = async () => {
@@ -120,6 +121,17 @@
     if (e.target.id === "searchterm") return;
     if (e.keyCode === 37) previousPage();
     if (e.keyCode === 39) nextPage();
+  };
+
+  const onKeyDown = (e) => {
+    const isNumber = !isNaN(e.key);
+    const number = isNumber ? parseInt(e.target.value + e.key) : 0;
+
+    if (
+      (!isNumber && e.key !== "Backspace") ||
+      (isNumber && number > totalPages)
+    )
+      e.preventDefault();
   };
 
   const openLink = (url) => {
@@ -258,11 +270,11 @@
     <div class="flex w-full" id="games">
       <ul class="flex flex-wrap w-full">
         {#each pageContent as game, index}
-          <li>
+          <li class="w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6">
             <div
               on:click={openLink(game.url)}
               on:keypress={openLink(game.url)}
-              class="cursor-pointer flex flex-col w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 px-1 pb-3"
+              class="cursor-pointer flex flex-col px-1 pb-3 h-full"
               role="button"
               tabindex={index}
             >
@@ -383,8 +395,8 @@
     <!-- END RESULTS-->
 
     <!-- PAGINATION -->
-    <div class="flex flex-inline w-full mb-2">
-      <div class="w-1/3 px-1 inline-flex gap-1">
+    <div class="flex flex-inline w-full mb-2 gap-2">
+      <div class="w-1/3 inline-flex gap-1">
         <button
           on:click={() => setPage(1)}
           disabled={currentPage <= 1}
@@ -402,17 +414,24 @@
         </button>
       </div>
 
-      <div class="w-1/3 px-1">
-        <div
-          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          {currentPage}
-          /
-          {totalPages}
-        </div>
-      </div>
+      <label
+        for="page"
+        class="group relative focus-within:border focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 w-1/3 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <input
+          id="page"
+          type="number"
+          min={1}
+          max={totalPages}
+          bind:value={currentPage}
+          on:keydown={onKeyDown}
+          class="border-none bg-transparent no-number-spinner max-w-[3ch] text-right focus:ring-0 focus:ring-offset-transparent focus:outline-none select-none"
+        />
+        &nbsp; /
+        {totalPages}
+      </label>
 
-      <div class="w-1/3 px-1 inline-flex gap-1">
+      <div class="w-1/3 inline-flex gap-1">
         <button
           on:click={nextPage}
           disabled={currentPage >= totalPages}
