@@ -129,7 +129,7 @@
     e.stopPropagation();
 
     if (e.key === "Enter") document.activeElement.blur();
-
+    console.log(e.target);
     const futureValue = [...e.target.value];
     // TODO: Refactor with toSplice when it has more browser support
     futureValue.splice(this.selectionStart, 0, e.key);
@@ -176,6 +176,11 @@
 
   const isCheaper = (countryPrice, userCountryPrice) =>
     parseFloat(countryPrice) < parseFloat(userCountryPrice);
+
+  // Fix error when currentPage is string, once it is introduced with the page input
+  // @see https://stackoverflow.com/a/72418699/17157571
+  const toInt = (x) => (currentPage = parseInt(x));
+  $: toInt(currentPage);
 </script>
 
 <svelte:window on:keydown={moveOnKeyPress} />
