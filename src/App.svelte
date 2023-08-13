@@ -179,7 +179,9 @@
 
   // Fix error when currentPage is string, once it is introduced with the page input
   // @see https://stackoverflow.com/a/72418699/17157571
-  const toInt = (x) => (currentPage = parseInt(x));
+  const toInt = (x) => {
+    if (!isNaN(x) && x !== "") currentPage = parseInt(x);
+  };
   $: toInt(currentPage);
 </script>
 
