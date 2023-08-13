@@ -7,11 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2023-08-13
+
+### Added
+
+- Option to switch to the page you want instead of going from one to one.
 - Code improvements and cleanup.
 - Remove unnecessary dependencies.
 - UI/UX improvements.
 
 ## [2.4.1] - 2023-01-29
+
+### Changed
+
+- Now the webpage only scrap this countries: ES, RU, AR, CN, SE, AM, NO and BR.
 
 ### Fixed
 
