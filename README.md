@@ -18,12 +18,47 @@ git clone https://github.com/RodrigoTomeES/gog-regions-prices.git
 cd gog-regions-prices
 npm install
 
+# Test GOG API connectivity (recommended before extraction)
+npm run validate-api
+
+# Extract GOG data (requires internet access)
+npm run extract
+
 # Development with Hot Reloading
 npm run dev
 
 # Build
 npm run build
 ```
+
+## Troubleshooting GOG API Issues
+
+If you encounter issues with the GOG API extraction:
+
+1. **Test API connectivity first:**
+   ```bash
+   npm run validate-api
+   ```
+
+2. **Check for common issues:**
+   - Network connectivity problems
+   - GOG API endpoint changes
+   - Rate limiting or IP blocking
+   - Temporary GOG API downtime
+
+3. **The system automatically tries multiple endpoints:**
+   - `https://www.gog.com/games/ajax/filtered` (primary)
+   - `https://gog.com/games/ajax/filtered` (fallback)
+   - `https://api.gog.com/games/filtered` (API subdomain)
+   - `https://www.gog.com/api/games/filtered` (API path)
+
+## Recent Updates
+
+**v2.5.0+**: Fixed GOG API integration issues by:
+- Replacing deprecated `request` library with modern `axios`
+- Adding fallback endpoint support for API resilience
+- Improving error handling and logging
+- Adding modern HTTP headers for better compatibility
 
 ## Resorces
 
