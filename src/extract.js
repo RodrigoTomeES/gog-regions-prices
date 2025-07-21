@@ -1,4 +1,4 @@
-const request = require("request");
+const axios = require("axios");
 const fs = require("fs");
 const regions = require("./regions");
 
@@ -8,6 +8,16 @@ const lastUpdate = `${__dirname}/../public/lastUpdate.json`;
 const GRACE_TIME = 200;
 const MAX_RETRIES = 25;
 const COUNTRY_OF_REFERENCE = "ES";
+
+// Potential GOG API endpoints to try (in order of preference)
+const GOG_API_ENDPOINTS = [
+  'https://www.gog.com/games/ajax/filtered',
+  'https://gog.com/games/ajax/filtered',
+  'https://api.gog.com/games/filtered',
+  'https://www.gog.com/api/games/filtered',
+];
+
+let workingEndpoint = null;
 
 updateGOGGames();
 
@@ -124,21 +134,90 @@ function getGames(country, maxPages) {
   });
 }
 
-function getGOGData(country, page) {
-  return new Promise((resolve, reject) => {
-    request(options(country, page), (error, response, body) => {
-      if (error || response.statusCode === 500) {
-        reject(error);
-      } else if (!error && response.statusCode == 200 && IsJsonString(body)) {
-        resolve(JSON.parse(body));
+async function findWorkingEndpoint() {
+  if (workingEndpoint) {
+    return workingEndpoint;
+  }
+
+  console.info(" Testing GOG API endpoints...");
+  
+  for (const endpoint of GOG_API_ENDPOINTS) {
+    try {
+      console.info(`  Testing: ${endpoint}`);
+      const testResponse = await axios({
+        method: 'GET',
+        url: `${endpoint}?sort=title&page=1`,
+        headers: {
+          'Cookie': 'gog_lc=ES_USD_en-US; path=/',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'application/json, text/javascript, */*; q=0.01',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        timeout: 10000,
+        validateStatus: function (status) {
+          return status < 500;
+        }
+      });
+
+      if (testResponse.status === 200 && testResponse.data && testResponse.data.products) {
+        console.info(`  ✅ Found working endpoint: ${endpoint}`);
+        workingEndpoint = endpoint;
+        return endpoint;
+      }
+    } catch (error) {
+      console.info(`  ❌ ${endpoint} failed: ${error.message}`);
+    }
+  }
+
+  throw new Error('No working GOG API endpoints found. GOG may have changed their API.');
+}
+
+async function getGOGData(country, page) {
+  const endpoint = await findWorkingEndpoint();
+  
+  const config = {
+    method: 'GET',
+    url: `${endpoint}?sort=title&page=${page}`,
+    headers: {
+      'Cookie': `gog_lc=${country}_USD_en-US; path=/`,
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Accept': 'application/json, text/javascript, */*; q=0.01',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    timeout: 30000,
+    validateStatus: function (status) {
+      return status < 500; // Don't throw for 4xx responses
+    }
+  };
+
+  try {
+    const response = await axios(config);
+    
+    if (response.status === 200 && response.data) {
+      if (typeof response.data === 'object' && response.data.products) {
+        return response.data;
+      } else if (typeof response.data === 'string' && IsJsonString(response.data)) {
+        return JSON.parse(response.data);
       } else {
-        resolve({
+        console.warn(`Unexpected response format for ${country} page ${page}`);
+        return {
           totalPages: 1,
           products: [],
-        });
+        };
       }
-    });
-  });
+    } else {
+      console.warn(`Non-200 response: ${response.status} for ${country} page ${page}`);
+      return {
+        totalPages: 1,
+        products: [],
+      };
+    }
+  } catch (error) {
+    console.error(`Request failed for ${country} page ${page}:`, error.message);
+    throw error;
+  }
 }
 
 const orderByID = (a, b) => a.id - b.id;
@@ -148,14 +227,6 @@ const percentOfDiscount = (countryPrice, userCountryPrice) =>
     (100 - (countryPrice * 100) / userCountryPrice + Number.EPSILON) * 100
   ) / 100;
 
-function options(country = "RU", page = 1) {
-  return {
-    url: `https://www.gog.com/games/ajax/filtered?sort=title&page=${page}`,
-    headers: {
-      Cookie: "gog_lc=" + country + "_USD_en-US; path=/",
-    },
-  };
-}
 
 function joinPrices(first, ...args) {
   const newGames = [];
