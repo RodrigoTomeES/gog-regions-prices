@@ -6,8 +6,6 @@
  * Usage: node validate-gog-api.js
  */
 
-const axios = require("axios");
-
 const GOG_API_ENDPOINTS = [
   'https://www.gog.com/games/ajax/filtered',
   'https://gog.com/games/ajax/filtered',
@@ -24,26 +22,35 @@ async function validateGOGAPI() {
     try {
       console.log(`Testing: ${endpoint}`);
       
-      const response = await axios({
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch(`${endpoint}?sort=title&page=1`, {
         method: 'GET',
-        url: `${endpoint}?sort=title&page=1`,
         headers: {
           'Cookie': 'gog_lc=ES_USD_en-US; path=/',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
           'Accept': 'application/json, text/javascript, */*; q=0.01',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        timeout: 10000,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
-      if (response.status === 200 && response.data && response.data.products) {
-        console.log(`✅ SUCCESS: ${endpoint}`);
-        console.log(`   Products found: ${response.data.products.length}`);
-        console.log(`   Total pages: ${response.data.totalPages}`);
-        workingEndpoint = endpoint;
-        break;
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.products) {
+          console.log(`✅ SUCCESS: ${endpoint}`);
+          console.log(`   Products found: ${data.products.length}`);
+          console.log(`   Total pages: ${data.totalPages}`);
+          workingEndpoint = endpoint;
+          break;
+        } else {
+          console.log(`⚠️  Unexpected response format from ${endpoint}`);
+        }
       } else {
-        console.log(`⚠️  Unexpected response format from ${endpoint}`);
+        console.log(`❌ FAILED: ${endpoint} (HTTP ${response.status})`);
       }
     } catch (error) {
       console.log(`❌ FAILED: ${endpoint}`);

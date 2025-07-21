@@ -1,4 +1,3 @@
-const axios = require("axios");
 const fs = require("fs");
 const regions = require("./regions");
 
@@ -144,9 +143,12 @@ async function findWorkingEndpoint() {
   for (const endpoint of GOG_API_ENDPOINTS) {
     try {
       console.info(`  Testing: ${endpoint}`);
-      const testResponse = await axios({
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch(`${endpoint}?sort=title&page=1`, {
         method: 'GET',
-        url: `${endpoint}?sort=title&page=1`,
         headers: {
           'Cookie': 'gog_lc=ES_USD_en-US; path=/',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -154,16 +156,18 @@ async function findWorkingEndpoint() {
           'Accept-Language': 'en-US,en;q=0.9',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        timeout: 10000,
-        validateStatus: function (status) {
-          return status < 500;
-        }
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
-      if (testResponse.status === 200 && testResponse.data && testResponse.data.products) {
-        console.info(`  ✅ Found working endpoint: ${endpoint}`);
-        workingEndpoint = endpoint;
-        return endpoint;
+      if (response.ok && response.status < 500) {
+        const data = await response.json();
+        if (data && data.products) {
+          console.info(`  ✅ Found working endpoint: ${endpoint}`);
+          workingEndpoint = endpoint;
+          return endpoint;
+        }
       }
     } catch (error) {
       console.info(`  ❌ ${endpoint} failed: ${error.message}`);
@@ -176,30 +180,29 @@ async function findWorkingEndpoint() {
 async function getGOGData(country, page) {
   const endpoint = await findWorkingEndpoint();
   
-  const config = {
-    method: 'GET',
-    url: `${endpoint}?sort=title&page=${page}`,
-    headers: {
-      'Cookie': `gog_lc=${country}_USD_en-US; path=/`,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      'Accept': 'application/json, text/javascript, */*; q=0.01',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    timeout: 30000,
-    validateStatus: function (status) {
-      return status < 500; // Don't throw for 4xx responses
-    }
-  };
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
-    const response = await axios(config);
+    const response = await fetch(`${endpoint}?sort=title&page=${page}`, {
+      method: 'GET',
+      headers: {
+        'Cookie': `gog_lc=${country}_USD_en-US; path=/`,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      signal: controller.signal
+    });
     
-    if (response.status === 200 && response.data) {
-      if (typeof response.data === 'object' && response.data.products) {
-        return response.data;
-      } else if (typeof response.data === 'string' && IsJsonString(response.data)) {
-        return JSON.parse(response.data);
+    clearTimeout(timeoutId);
+    
+    if (response.ok && response.status < 500) {
+      const data = await response.json();
+      
+      if (data && typeof data === 'object' && data.products) {
+        return data;
       } else {
         console.warn(`Unexpected response format for ${country} page ${page}`);
         return {
@@ -215,6 +218,7 @@ async function getGOGData(country, page) {
       };
     }
   } catch (error) {
+    clearTimeout(timeoutId);
     console.error(`Request failed for ${country} page ${page}:`, error.message);
     throw error;
   }
@@ -311,15 +315,6 @@ function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-}
-
-function IsJsonString(str) {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
-  }
-  return true;
 }
 
 function randomGraceTime(min, max) {
