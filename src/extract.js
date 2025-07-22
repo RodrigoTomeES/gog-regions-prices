@@ -1,6 +1,6 @@
-const request = require("request");
 const fs = require("fs");
 const regions = require("./regions");
+const ProxyService = require("./proxy-service");
 
 const gamesDB = `${__dirname}/../public/games.json`;
 const salesDB = `${__dirname}/../public/sales.json`;
@@ -9,6 +9,9 @@ const GRACE_TIME = 200;
 const MAX_RETRIES = 25;
 const COUNTRY_OF_REFERENCE = "ES";
 
+// Global proxy service instance
+const proxyService = new ProxyService();
+
 updateGOGGames();
 
 async function updateGOGGames(maxPages = undefined) {
@@ -16,6 +19,10 @@ async function updateGOGGames(maxPages = undefined) {
   console.info(
     `Retrieving information from GOG with Max Pages set to ${maxPages}`
   );
+  
+  // Load proxies at the beginning
+  await proxyService.loadProxies();
+  
   console.info(" Reading DB...");
 
   let gamesJSON = null;
@@ -74,8 +81,9 @@ function getGames(country, maxPages) {
       const getResult = async (country, page) => {
         const result = await getGOGData(country, page);
 
-        if (result.products.length === 0)
-          throw Error("GOG blocked the API call");
+        if (!result || !result.products || result.products.length === 0) {
+          throw Error("GOG blocked the API call or returned empty results");
+        }
 
         totalPages = totalPages || result.totalPages;
 
@@ -125,19 +133,39 @@ function getGames(country, maxPages) {
 }
 
 function getGOGData(country, page) {
-  return new Promise((resolve, reject) => {
-    request(options(country, page), (error, response, body) => {
-      if (error || response.statusCode === 500) {
-        reject(error);
-      } else if (!error && response.statusCode == 200 && IsJsonString(body)) {
-        resolve(JSON.parse(body));
+  return new Promise(async (resolve, reject) => {
+    try {
+      const url = `https://www.gog.com/games/ajax/filtered?sort=title&page=${page}`;
+      const headers = {
+        Cookie: "gog_lc=" + country + "_USD_en-US; path=/",
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Referer': 'https://www.gog.com/games',
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+      
+      const body = await proxyService.makeRequest(url, { headers });
+      
+      if (IsJsonString(body)) {
+        const parsed = JSON.parse(body);
+        // Add some debugging
+        if (parsed.products && parsed.products.length > 0) {
+          console.info(`    Successfully got ${parsed.products.length} products for ${country} page ${page}`);
+        }
+        resolve(parsed);
       } else {
+        console.warn(`    Got non-JSON response for ${country} page ${page}`);
         resolve({
           totalPages: 1,
           products: [],
         });
       }
-    });
+    } catch (error) {
+      console.error(`    Error for ${country} page ${page}:`, error.message);
+      reject(error);
+    }
   });
 }
 
@@ -147,15 +175,6 @@ const percentOfDiscount = (countryPrice, userCountryPrice) =>
   Math.round(
     (100 - (countryPrice * 100) / userCountryPrice + Number.EPSILON) * 100
   ) / 100;
-
-function options(country = "RU", page = 1) {
-  return {
-    url: `https://www.gog.com/games/ajax/filtered?sort=title&page=${page}`,
-    headers: {
-      Cookie: "gog_lc=" + country + "_USD_en-US; path=/",
-    },
-  };
-}
 
 function joinPrices(first, ...args) {
   const newGames = [];
