@@ -6,8 +6,9 @@ const gamesDB = `${__dirname}/../public/games.json`;
 const salesDB = `${__dirname}/../public/sales.json`;
 const lastUpdate = `${__dirname}/../public/lastUpdate.json`;
 const GRACE_TIME = 200;
-const MAX_RETRIES = 25;
+const MAX_RETRIES = 15; // Reduced from 25 to make failures faster
 const COUNTRY_OF_REFERENCE = "ES";
+const MAX_CONCURRENT_REGIONS = 2; // Limit concurrent processing to reduce load
 
 // Global proxy service instance
 const proxyService = new ProxyService();
@@ -21,7 +22,10 @@ async function updateGOGGames(maxPages = undefined) {
   );
   
   // Load proxies at the beginning
-  await proxyService.loadProxies();
+  const proxiesLoaded = await proxyService.loadProxies();
+  if (!proxiesLoaded) {
+    console.warn("  No proxies available, will attempt direct connections only");
+  }
   
   console.info(" Reading DB...");
 
@@ -38,10 +42,33 @@ async function updateGOGGames(maxPages = undefined) {
   const games = [];
   const regionsLength = regions.length;
 
-  for (let i = 0; i < regionsLength; i++) {
-    const country = regions[i];
-    const countryGames = await getGames(country, maxPages);
-    games.push(countryGames);
+  // Process regions in smaller batches to reduce load and improve success rate
+  for (let i = 0; i < regionsLength; i += MAX_CONCURRENT_REGIONS) {
+    const batch = regions.slice(i, i + MAX_CONCURRENT_REGIONS);
+    const batchPromises = batch.map(country => getGames(country, maxPages));
+    
+    try {
+      const batchResults = await Promise.all(batchPromises);
+      games.push(...batchResults);
+      
+      // Small delay between batches
+      if (i + MAX_CONCURRENT_REGIONS < regionsLength) {
+        await sleep(GRACE_TIME * 2);
+      }
+    } catch (error) {
+      console.error(`  Error processing batch starting at index ${i}:`, error.message);
+      // Continue with next batch instead of failing completely
+      for (const country of batch) {
+        try {
+          const countryGames = await getGames(country, maxPages);
+          games.push(countryGames);
+        } catch (countryError) {
+          console.error(`  Failed to get games for ${country}:`, countryError.message);
+          // Push empty map to maintain array structure
+          games.push(new Map());
+        }
+      }
+    }
   }
 
   console.info(" Putting everything together...");
