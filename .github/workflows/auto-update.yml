@@ -2,7 +2,7 @@ name: Auto update DB and Deploy
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 5,13,21 * * *'
+    # - cron: '0 5,13,21 * * *'
 
 jobs:
   run:
