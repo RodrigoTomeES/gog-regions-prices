@@ -12,6 +12,7 @@
     "start:dev": "sirv public --single --dev --port 8888",
     "autobuild": "rollup -c -w --bundleConfigAsCjs",
     "extract": "node ./src/extract.js",
+    "test:proxy": "node ./test-proxy-service.js",
     "deploy": "npm run build && gh-pages -d public"
   },
   "license": "AGPL-3.0-only",
@@ -42,5 +43,8 @@
   },
   "optionalDependencies": {
     "win-node-env": "^0.6.1"
+  },
+  "dependencies": {
+    "axios": "^1.10.0"
   }
 }
