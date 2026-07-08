@@ -10,6 +10,13 @@ A WebApp where you can see the price of a given game on GOG's platform in all re
 
 Using GitHub actions and a cron job, it obtains the prices for all games from all regions and saves them in the repo. Using that information, a simple web consumes this data to show the best deals when it comes to regional pricing between those countries
 
+## Configuration
+
+The price extraction script supports several environment variables for configuration:
+
+- `DISABLE_PROXIES=true` - Disables proxy usage and uses direct connections only
+- `LOAD_DYNAMIC_PROXIES=true` - Attempts to load additional proxies from online sources
+
 ## Development workflow
 
 ```bash
